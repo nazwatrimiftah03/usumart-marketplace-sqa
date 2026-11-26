@@ -1,16 +1,40 @@
-# React + Vite
+# 🛍️ USUMart — Marketplace Produk UMKM & Jasa Mahasiswa
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**USUMart** adalah platform marketplace berbasis web yang dirancang sebagai wadah terpusat bagi wirausaha mahasiswa Universitas Sumatera Utara (USU) untuk memasarkan produk UMKM (makanan, minuman, pakaian, buket wisuda) maupun jasa mahasiswa (desain grafis, pengembangan website/coding, dan editing multimedia) dalam satu ekosistem digital yang terukur kualitasnya.
 
-Currently, two official plugins are available:
+Proyek ini dikembangkan menggunakan metodologi **Agile (Scrum)** dan dilengkapi dengan sistem telemetri **Software Quality Assurance (SQA)** berbasis standar **ISO/IEC 25010** untuk memenuhi tugas mata kuliah **Penjaminan Kualitas Perangkat Lunak (PKPL)** — Program Studi S1 Ilmu Komputer, FASILKOM-TI, Universitas Sumatera Utara.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Fitur Utama
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Katalog Terpisah (Produk UMKM & Eksplor Jasa):**
+  - **Produk UMKM:** Kategori *Makanan & Minuman*, *Pakaian & Fashion*, serta *Buket & Hadiah*.
+  - **Eksplor Jasa:** Kategori *Desain & Kreatif*, *Coding & IT*, serta *Editing & Multimedia*.
+  - Dilengkapi pencarian *real-time*, pengurutan berdasarkan harga maupun rating, serta fitur **Favorit (Wishlist)**.
+- **Autentikasi & Akun Pengguna:** Registrasi dan login akun mahasiswa untuk melakukan pemesanan maupun pengelolaan usaha.
+- **Manajemen Usaha Penjual (CRUD Cloud):** Penjual dapat menambah, mengubah informasi/stok, dan menghapus produk atau jasa secara langsung di database cloud.
+- **Keranjang Belanja, Voucher Promo & Pelacakan Pesanan:** Perhitungan subtotal dan diskon otomatis (`MABAUSU`, `KAMPUS10`), validasi stok *real-time*, serta pembaruan status pengerjaan pesanan.
+- **Live SQA Telemetry & Checkout Validation (Bab V & VI):**
+  - Eksekusi dan pencatatan otomatis **8 skenario pengujian alur checkout** (validasi alamat, ketersediaan stok, metode pembayaran, pencegahan *double-submit*, simulasi kegagalan pembayaran, dan simulasi gangguan koneksi).
+  - Perhitungan metrik kualitas secara *real-time*:
+    - **Functional Test Pass Rate** (Target: $\ge 95\%$)
+    - **Checkout Response Time** (Target: $\ge 95\%$ respons $\le 2$ detik)
+    - **Transaction Success Rate** (Target: $\ge 99\%$ transaksi valid berhasil)
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 🛠️ Teknologi yang Digunakan (*Tech Stack*)
+
+- **Frontend:** React (Vite), Tailwind CSS, Lucide React Icons
+- **Backend & Database:** Supabase (PostgreSQL & REST API)
+- **Version Control & Deployment:** GitHub & Vercel
+
+---
+
+## 🚀 Cara Menjalankan Secara Lokal
+
+1. **Clone repository ini:**
+   ```bash
+   git clone [https://github.com/nazwatrimiftah03/usumart-marketplace-sqa.git](https://github.com/nazwatrimiftah03/usumart-marketplace-sqa.git)
+   cd usumart-marketplace-sqa
