@@ -62,7 +62,11 @@ export default function App() {
         supabase.from('sqa_logs').select('*').order('id', { ascending: false })
       ]);
 
-      if (prodRes.data && prodRes.data.length > 0) { setProducts(prodRes.data.map((p) => ({ ...p, type: inferType(p.category), completedJobs: p.completed_jobs }))); } else { setProducts(INITIAL_PRODUCTS); }
+      if (prodRes.data && prodRes.data.length > 0) {
+        setProducts(prodRes.data.map((p) => ({ ...p, type: inferType(p.category), completedJobs: p.completed_jobs })));
+      } else {
+        setProducts(INITIAL_PRODUCTS);
+      }
 
       if (ordRes.data) {
         setOrders(
@@ -199,18 +203,29 @@ export default function App() {
     : 0;
   const cartTotal = Math.max(0, subtotal - discount);
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (options = {}) => {
+    const { simulateStockError = false, simulateDoubleSubmit = false } = options;
     const startTime = performance.now();
     setCheckoutFeedback(null);
 
-    if (isSubmitting) {
+    // Skenario 6: Pencegahan Double-Submit
+    if (isSubmitting || simulateDoubleSubmit) {
+      const endTime = performance.now();
+      const durationSec = Number(((endTime - startTime) / 1000).toFixed(3));
+      setLastResponseTime(durationSec.toFixed(3));
+      setCheckoutFeedback({
+        type: 'error',
+        text: 'Sistem berhasil mencegah pesanan ganda (double-submit).'
+      });
       await recordSqaLog(
-        'Skenario 6: Checkout Berulang',
-        'Sistem memblokir double-submit saat proses berjalan'
+        'Skenario 6: Pencegahan Double-Submit',
+        'Sistem memblokir permintaan ganda saat tombol diklik berulang',
+        durationSec
       );
       return;
     }
 
+    // Skenario 2: Validasi Alamat Kosong
     if (!address.trim()) {
       setCheckoutFeedback({
         type: 'error',
@@ -220,6 +235,7 @@ export default function App() {
       return;
     }
 
+    // Skenario 4: Validasi Metode Pembayaran
     if (!paymentMethod) {
       setCheckoutFeedback({
         type: 'error',
@@ -232,8 +248,26 @@ export default function App() {
       return;
     }
 
+    // Skenario 3: Simulasi Stok Tidak Cukup dari Panel SQA
+    if (simulateStockError) {
+      const endTime = performance.now();
+      const durationSec = Number(((endTime - startTime) / 1000).toFixed(3));
+      setLastResponseTime(durationSec.toFixed(3));
+      setCheckoutFeedback({
+        type: 'error',
+        text: 'Pesanan ditolak: Simulasi stok produk tidak mencukupi.'
+      });
+      await recordSqaLog(
+        'Skenario 3: Stok Tidak Cukup',
+        'Pesanan ditolak karena simulasi stok kurang',
+        durationSec
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
+    // Cek stok real-time ke Supabase untuk Skenario 3 normal
     for (const item of cart) {
       const { data: latestProd } = await supabase
         .from('products')
@@ -243,6 +277,9 @@ export default function App() {
 
       if (!latestProd || item.qty > latestProd.stock) {
         setIsSubmitting(false);
+        const endTime = performance.now();
+        const durationSec = Number(((endTime - startTime) / 1000).toFixed(3));
+        setLastResponseTime(durationSec.toFixed(3));
         setCheckoutFeedback({
           type: 'error',
           text: `Pesanan ditolak: Stok "${item.name}" tidak mencukupi (tersisa ${
@@ -251,12 +288,14 @@ export default function App() {
         });
         await recordSqaLog(
           'Skenario 3: Stok Tidak Cukup',
-          `Pesanan ditolak karena stok ${item.name} kurang`
+          `Pesanan ditolak karena stok ${item.name} kurang`,
+          durationSec
         );
         return;
       }
     }
 
+    // Skenario 7: Simulasi Koneksi Terputus (Offline)
     if (simulateOffline) {
       const endTime = performance.now();
       const durationSec = Number(((endTime - startTime) / 1000).toFixed(3));
@@ -274,6 +313,7 @@ export default function App() {
       return;
     }
 
+    // Skenario 5: Simulasi Pembayaran Gagal
     if (simulatePaymentFail) {
       const endTime = performance.now();
       const durationSec = Number(((endTime - startTime) / 1000).toFixed(3));
@@ -291,6 +331,7 @@ export default function App() {
       return;
     }
 
+    // Skenario 1 & 8: Checkout & Pembayaran Berhasil
     const orderId = `INV-${Date.now().toString().slice(-6)}`;
     const { error: orderErr } = await supabase.from('orders').insert([
       {
@@ -344,9 +385,7 @@ export default function App() {
     setIsSubmitting(false);
     setCheckoutFeedback({
       type: 'success',
-      text: `Order ${orderId} berhasil dikonfirmasi & tersimpan di database! (Response Time: ${durationSec.toFixed(
-        3
-      )} detik)`
+      text: `Order ${orderId} berhasil dikonfirmasi & tersimpan di database! (Response Time: ${durationSec.toFixed(3)} detik)`
     });
 
     await fetchAllData();
@@ -535,4 +574,3 @@ export default function App() {
     </div>
   );
 }
-
